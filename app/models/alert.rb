@@ -1,6 +1,9 @@
 class Alert < ApplicationRecord
+  after_create :log_creation
+
   belongs_to :user
   has_many :alert_subscriptions, dependent: :destroy
+  has_many :subscribers, through: :alert_subscriptions, source: :user
 
   validates :title, presence: true, length: { maximum: 255 }
   validates :message, presence: true, length: { maximum: 5000 }
@@ -41,5 +44,11 @@ class Alert < ApplicationRecord
 
   def overdue?
     active? && created_at < 24.hours.ago
+  end
+
+  private
+
+  def log_creation
+    Rails.logger.info("[Alert] created id=#{id} user_id=#{user_id}")
   end
 end

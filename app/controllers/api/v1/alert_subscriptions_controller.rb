@@ -9,13 +9,7 @@ module Api
       def index
         subscriptions = @alert.alert_subscriptions
         render json: {
-          data: subscriptions.map do |subscription|
-            {
-              id: subscription.id,
-              notification_method: subscription.notification_method,
-              is_active: subscription.is_active
-            }
-          end
+          data: AlertSubscriptionSerializer.new(subscriptions).serializable_hash[:data]
         }
       end
 
@@ -26,12 +20,12 @@ module Api
 
         if subscription.save
           render json: {
-            data: subscription,
+            data: AlertSubscriptionSerializer.new(subscription).serializable_hash[:data],
             message: "Successfully subscribed to alert"
           }, status: :created
         else
           render json: {
-            errors: subscription.errors
+            errors: subscription.errors.full_messages
           }, status: :unprocessable_entity
         end
       end
@@ -49,8 +43,7 @@ module Api
       private
 
       def find_alert
-        # TODO: Find alert
-        @alert = current_user.alerts.find(params[:alert_id])
+        @alert = Alert.find(params[:alert_id])
       end
 
       def subscription_params

@@ -11,20 +11,48 @@ module Api
       def index
         # Get all alerts that belong to the logged-in user
         puts params
-        alerts = current_user.alerts
+        include_parts = params[:include].to_s.split(",").map(&:strip)
+
+        # alerts = current_user.alerts
+        alerts = Alert.all
         alerts = alerts.by_severity(params[:severity]) if params[:severity].present?
         alerts = alerts.by_category(params[:category]) if params[:category].present?
         alerts = alerts.unread if params[:unread] == "true"
-        alerts = alerts.recent.page(params[:page]).per(params[:per_page] || 20)
+
+        # Handle includes vs preload for performance comparison
+        if include_parts.include?("user")
+          alerts = alerts.includes(:user)
+        end
+
+        if include_parts.include?("subscribers")
+          # Compare includes vs preload behavior
+          # Use preload to avoid N+1 but don't affect WHERE clauses
+          if params[:load_strategy] == "preload"
+            Rails.logger.info("[ALERT_API] Using preload(:alert_subscriptions, :user) strategy")
+            alerts = alerts.preload(:alert_subscriptions, :user)
+          else
+            Rails.logger.info("[ALERT_API] Using includes(:alert_subscriptions, :user) strategy")
+            alerts = alerts.includes(:alert_subscriptions, :user)
+          end
+        end
+
+        alerts = alerts
+        .recent
+        .page(params[:page])
+        .per(params[:per_page] || 20)
 
         # Convert alerts to JSON and send back
+        serializer_options = {}
+        serializer_options[:include_subscribers] = true if include_parts.include?("subscribers")
+
         render json: {
-          data: AlertSerializer.new(alerts).serializable_hash[:data],
+          data: AlertSerializer.new(alerts, serializer_options).serializable_hash[:data],
           meta: {
             current_page: alerts.current_page,
             per_page: alerts.limit_value,
             total_pages: alerts.total_pages,
-            total_count: alerts.total_count
+            total_count: alerts.total_count,
+            load_strategy: params[:load_strategy] || "includes"
           }
         }
       end
@@ -32,14 +60,7 @@ module Api
       # GET /api/v1/alerts/123 - Show one specific alert
       def show
         render json: {
-          data: {
-            id: @alert.id,
-            title: @alert.title,
-            message: @alert.message,
-            severity: @alert.severity,
-            category: @alert.category,
-            created_at: @alert.created_at
-          }
+          data: AlertSerializer.new(@alert).serializable_hash[:data]
         }
       end
 
@@ -52,7 +73,7 @@ module Api
           # Success! Send back the new alert with status 201 (Created)
           render json: {
             data: AlertSerializer.new(alert).serializable_hash[:data]
-          }, status: 201
+          }, status: :created
         else
           # Failed! Send back the errors with status 422 (Unprocessable Content)
           render json: {
@@ -66,14 +87,7 @@ module Api
         if @alert.update(alert_params)
           # Success! Send back the updated alert
           render json: {
-            data: {
-              id: @alert.id,
-              title: @alert.title,
-              message: @alert.message,
-              severity: @alert.severity,
-              category: @alert.category,
-              updated_at: @alert.updated_at
-            }
+            data: AlertSerializer.new(@alert).serializable_hash[:data]
           }
         else
           # Failed! Send back the errors
