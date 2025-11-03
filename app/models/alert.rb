@@ -3,6 +3,7 @@ class Alert < ApplicationRecord
 
   belongs_to :user
   has_many :alert_subscriptions, dependent: :destroy
+  has_many :subscribers, through: :alert_subscriptions, source: :user
 
   validates :title, presence: true, length: { maximum: 255 }
   validates :message, presence: true, length: { maximum: 5000 }
