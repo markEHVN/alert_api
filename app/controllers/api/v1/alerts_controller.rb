@@ -11,7 +11,8 @@ module Api
       def index
         # Get all alerts that belong to the logged-in user
         puts params
-        alerts = current_user.alerts
+        # alerts = current_user.alerts
+        alerts = Alert.all
         alerts = alerts.by_severity(params[:severity]) if params[:severity].present?
         alerts = alerts.by_category(params[:category]) if params[:category].present?
         alerts = alerts.unread if params[:unread] == "true"
@@ -32,14 +33,7 @@ module Api
       # GET /api/v1/alerts/123 - Show one specific alert
       def show
         render json: {
-          data: {
-            id: @alert.id,
-            title: @alert.title,
-            message: @alert.message,
-            severity: @alert.severity,
-            category: @alert.category,
-            created_at: @alert.created_at
-          }
+          data: AlertSerializer.new(@alert).serializable_hash[:data]
         }
       end
 
@@ -52,7 +46,7 @@ module Api
           # Success! Send back the new alert with status 201 (Created)
           render json: {
             data: AlertSerializer.new(alert).serializable_hash[:data]
-          }, status: 201
+          }, status: :created
         else
           # Failed! Send back the errors with status 422 (Unprocessable Content)
           render json: {
@@ -66,14 +60,7 @@ module Api
         if @alert.update(alert_params)
           # Success! Send back the updated alert
           render json: {
-            data: {
-              id: @alert.id,
-              title: @alert.title,
-              message: @alert.message,
-              severity: @alert.severity,
-              category: @alert.category,
-              updated_at: @alert.updated_at
-            }
+            data: AlertSerializer.new(@alert).serializable_hash[:data]
           }
         else
           # Failed! Send back the errors
