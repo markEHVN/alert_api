@@ -27,6 +27,11 @@ class AlertSerializer
     alert.high_priority?
   end
 
-  belongs_to :user, serializer: UserSerializer
-  has_many :alert_subscriptions, serializer: AlertSubscriptionSerializer
+  # This accessor will trigger N+1 unless we eager load :user
+  attribute :user_email do |alert|
+    alert.user&.email
+  end
+
+  # belongs_to :user, serializer: UserSerializer
+  # has_many :alert_subscriptions, serializer: AlertSubscriptionSerializer
 end

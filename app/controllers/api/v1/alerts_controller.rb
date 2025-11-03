@@ -11,12 +11,19 @@ module Api
       def index
         # Get all alerts that belong to the logged-in user
         puts params
+        include_parts = params[:include].to_s.split(",").map(&:strip)
+
         # alerts = current_user.alerts
         alerts = Alert.all
         alerts = alerts.by_severity(params[:severity]) if params[:severity].present?
         alerts = alerts.by_category(params[:category]) if params[:category].present?
         alerts = alerts.unread if params[:unread] == "true"
-        alerts = alerts.recent.page(params[:page]).per(params[:per_page] || 20)
+        alerts = alerts
+        .includes(:user) if include_parts.include?("user")
+        alerts = alerts
+        .recent
+        .page(params[:page])
+        .per(params[:per_page] || 20)
 
         # Convert alerts to JSON and send back
         render json: {
