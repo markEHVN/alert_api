@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
+gem "jsonapi-serializer"
+gem "kaminari"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.3"
 # Use postgresql as the database for Active Record
@@ -36,6 +39,10 @@ gem "thruster", require: false
 # gem "rack-cors"
 
 group :development, :test do
+  gem "rspec-rails", "~> 8.0.0"
+  gem "shoulda-matchers", "~> 6.0"
+  gem "factory_bot_rails"
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
