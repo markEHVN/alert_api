@@ -10,6 +10,7 @@ module AlertService
     end
 
     def call
+      return self unless validate_inputs
       return self unless create_alert
 
       send_notifications if high_severity

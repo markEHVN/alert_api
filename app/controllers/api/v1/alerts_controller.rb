@@ -6,8 +6,8 @@ module Api
       before_action :find_alert, only: [ :show, :update, :destroy, :acknowledge, :resolve ]
       # Before running show, update, destroy, acknowledge, or resolve, find the specific alert first
 
-      rescue_from AlertService::InvalidSeverityError, with: :handle_bad_severity
-      rescue_from AlertService::NotificationFailedError, with: :handle_notification_error
+      # rescue_from AlertService::InvalidSeverityError, with: :handle_bad_severity
+      # rescue_from AlertService::NotificationFailedError, with: :handle_notification_error
 
       # GET /api/v1/alerts - Show all alerts for the current user
       def index
@@ -138,17 +138,17 @@ module Api
         params.require(:alert).permit(:title, :message, :severity, :category)
       end
 
-      def handle_bad_severity
-        render json: {
-          error: "Raise: Severity must be low, medium, high, or critical"
-        }, status: :unprocessable_content
-      end
+      # def handle_bad_severity
+      #   render json: {
+      #     error: "Raise: Severity must be low, medium, high, or critical"
+      #   }, status: :unprocessable_content
+      # end
 
-      def handle_notification_error
-        render json: {
-          error: "Raise: Failed to send notification"
-        }, status: :unprocessable_content
-      end
+      # def handle_notification_error
+      #   render json: {
+      #     error: "Raise: Failed to send notification"
+      #   }, status: :unprocessable_content
+      # end
     end
   end
 end
