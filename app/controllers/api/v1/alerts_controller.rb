@@ -1,4 +1,6 @@
 # app/controllers/api/v1/alerts_controller.rb
+require_relative "../../../services/alert_service/errors"
+
 module Api
   module V1
     class AlertsController < ApplicationController
@@ -6,6 +8,9 @@ module Api
 
       before_action :find_alert, only: [ :show, :update, :destroy, :acknowledge, :resolve ]
       # Before running show, update, destroy, acknowledge, or resolve, find the specific alert first
+
+      rescue_from AlertService::InvalidPriorityError, with: :handle_bad_priority
+      rescue_from AlertService::NotificationFailedError, with: :handle_notification_error
 
       # GET /api/v1/alerts - Show all alerts for the current user
       def index
@@ -67,17 +72,31 @@ module Api
       # POST /api/v1/alerts - Create a new alert
       def create
         # Build a new alert with the data from the request
-        alert = current_user.alerts.build(alert_params)
+        # alert = current_user.alerts.build(alert_params)
 
-        if alert.save
-          # Success! Send back the new alert with status 201 (Created)
+        # if alert.save
+        #   # Success! Send back the new alert with status 201 (Created)
+        #   render json: {
+        #     data: AlertSerializer.new(alert).serializable_hash[:data]
+        #   }, status: :created
+        # else
+        #   # Failed! Send back the errors with status 422 (Unprocessable Content)
+        #   render json: {
+        #     errors: alert.errors.full_messages
+        #   }, status: :unprocessable_content
+        # end
+        #
+        service = AlertService::Create.call(
+          params: alert_params,
+          current_user: current_user
+        )
+        if service.success?
           render json: {
-            data: AlertSerializer.new(alert).serializable_hash[:data]
+            data: AlertSerializer.new(service.result).serializable_hash[:data]
           }, status: :created
         else
-          # Failed! Send back the errors with status 422 (Unprocessable Content)
           render json: {
-            errors: alert.errors.full_messages
+            errors: service.errors
           }, status: :unprocessable_content
         end
       end
