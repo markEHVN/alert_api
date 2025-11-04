@@ -71,21 +71,6 @@ module Api
 
       # POST /api/v1/alerts - Create a new alert
       def create
-        # Build a new alert with the data from the request
-        # alert = current_user.alerts.build(alert_params)
-
-        # if alert.save
-        #   # Success! Send back the new alert with status 201 (Created)
-        #   render json: {
-        #     data: AlertSerializer.new(alert).serializable_hash[:data]
-        #   }, status: :created
-        # else
-        #   # Failed! Send back the errors with status 422 (Unprocessable Content)
-        #   render json: {
-        #     errors: alert.errors.full_messages
-        #   }, status: :unprocessable_content
-        # end
-        #
         service = AlertService::Create.call(
           params: alert_params,
           current_user: current_user
