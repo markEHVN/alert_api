@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  message: MyText
+  severity: MyString
+  category: MyString
+  status: 1
+  user: one
+  acknowledged_at: 2025-11-02 23:27:07
+  resolved_at: 2025-11-02 23:27:07
+  metadata: 
+
+two:
+  title: MyString
+  message: MyText
+  severity: MyString
+  category: MyString
+  status: 1
+  user: two
+  acknowledged_at: 2025-11-02 23:27:07
+  resolved_at: 2025-11-02 23:27:07
+  metadata: 

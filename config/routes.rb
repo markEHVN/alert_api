@@ -7,4 +7,19 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  namespace :api do
+    namespace :v1 do
+      resources :alerts do
+        member do
+          patch :acknowledge
+          patch :resolve
+        end
+        collection do
+          get :unread_count
+        end
+        resources :subscriptions, controller: "alert_subscriptions", except: [ :show, :update ]
+      end
+    end
+  end
 end
