@@ -9,7 +9,7 @@ module AlertService
     def call
       return self unless create_alert
 
-      send_notifications if high_priority?
+      send_notifications if high_severity
       log_creation
 
       self  # Always return self (the service instance)
@@ -20,7 +20,7 @@ module AlertService
     private
 
     def validate_inputs
-      unless valid_priority?
+      unless valid_severity?
         add_error("Priority must be low, medium, high, or critical")
         return false
       end
@@ -40,7 +40,7 @@ module AlertService
     end
 
     def send_notifications
-      AdminMailer.high_priority_alert(@alert).deliver_later
+      AdminMailer.high_severity_alert(@alert).deliver_later
     rescue StandardError => e
       add_error("Failed to send notification: #{e.message}")
       # Don't return false - notification failure shouldn't stop the process
@@ -56,12 +56,12 @@ module AlertService
       add_error("Failed to log creation: #{e.message}")
     end
 
-    def high_priority?
-      params[:priority] == "high"
+    def high_severity
+      params[:severity] == "high"
     end
 
-    def valid_priority?
-      %w[low medium high critical].include?(params[:priority])
+    def valid_severity?
+      %w[low medium high critical].include?(params[:severity])
     end
   end
 end
