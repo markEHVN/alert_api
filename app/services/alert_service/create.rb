@@ -1,5 +1,8 @@
 # app/services/alert_service/create.rb
 module AlertService
+  class InvalidSeverityError < StandardError; end
+  class NotificationFailedError < StandardError; end
+
   class Create < ServiceBase
     def initialize(params:, current_user:)
       @params = params
@@ -21,7 +24,7 @@ module AlertService
 
     def validate_inputs
       unless valid_severity?
-        add_error("Priority must be low, medium, high, or critical")
+        add_error("Severity must be low, medium, high, or critical")
         return false
       end
 
@@ -43,7 +46,6 @@ module AlertService
       AdminMailer.high_severity_alert(@alert).deliver_later
     rescue StandardError => e
       add_error("Failed to send notification: #{e.message}")
-      # Don't return false - notification failure shouldn't stop the process
     end
 
     def log_creation

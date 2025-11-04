@@ -1,6 +1,3 @@
-# app/controllers/api/v1/alerts_controller.rb
-require_relative "../../../services/alert_service/errors"
-
 module Api
   module V1
     class AlertsController < ApplicationController
@@ -9,7 +6,7 @@ module Api
       before_action :find_alert, only: [ :show, :update, :destroy, :acknowledge, :resolve ]
       # Before running show, update, destroy, acknowledge, or resolve, find the specific alert first
 
-      rescue_from AlertService::InvalidPriorityError, with: :handle_bad_priority
+      rescue_from AlertService::InvalidSeverityError, with: :handle_bad_severity
       rescue_from AlertService::NotificationFailedError, with: :handle_notification_error
 
       # GET /api/v1/alerts - Show all alerts for the current user
@@ -139,6 +136,18 @@ module Api
         # Only allow these specific fields to be set
         # This prevents users from setting fields they shouldn't (like user_id)
         params.require(:alert).permit(:title, :message, :severity, :category)
+      end
+
+      def handle_bad_severity
+        render json: {
+          error: "Raise: Severity must be low, medium, high, or critical"
+        }, status: :unprocessable_content
+      end
+
+      def handle_notification_error
+        render json: {
+          error: "Raise: Failed to send notification"
+        }, status: :unprocessable_content
       end
     end
   end
