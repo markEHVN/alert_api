@@ -24,5 +24,5 @@ Rails.application.routes.draw do
   # end
 
   mount Social => "/social"
-  mount EmploymentHero => "/api"
+  mount EmploymentHero => "/"
 end
