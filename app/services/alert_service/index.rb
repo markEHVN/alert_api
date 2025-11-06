@@ -1,15 +1,16 @@
 module AlertService
   class Index < ServiceBase
-    attr_reader :params, :alerts, :serializer_options
+    attr_reader :params, :alerts, :serializer_options, :current_user
 
-    def initialize(params:)
+    def initialize(params:, current_user: nil)
       @params = params
+      @current_user = current_user
     end
 
     def call
       include_parts = params[:include].to_s.split(",").map(&:strip)
-      # Start with all alerts (or current_user.alerts if authentication is needed)
-      @alerts = Alert.all
+      # Start with user's alerts if authenticated, otherwise all alerts
+      @alerts = current_user ? current_user.alerts : Alert.all
       @alerts = alerts.by_severity(params[:severity]) if params[:severity].present?
       @alerts = alerts.by_category(params[:category]) if params[:category].present?
       @alerts = alerts.unread if params[:unread] == "true"

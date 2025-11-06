@@ -10,6 +10,10 @@ module AlertService
       return self unless validate_inputs
       return self unless create_alert
 
+      # Send notifications for high severity alerts
+      send_notifications if high_severity?
+      log_creation
+
       self  # Always return self (the service instance)
     end
 
@@ -57,8 +61,8 @@ module AlertService
       add_error("Failed to log creation: #{e.message}")
     end
 
-    def high_severity
-      params[:severity] == "high"
+    def high_severity?
+      %w[high critical].include?(params[:severity])
     end
 
     def valid_severity?

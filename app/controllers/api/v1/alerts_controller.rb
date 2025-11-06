@@ -12,19 +12,23 @@ module Api
       # GET /api/v1/alerts - Show all alerts for the current user
       def index
         # Get all alerts that belong to the logged-in user
-        service = AlertService::Index.call(params: params)
+        service = AlertService::Index.call(params: params, current_user: current_user)
         if service.success?
           alerts, serializer_options = service.result.values_at(:alerts, :serializer_options)
           render json: {
-          data: AlertSerializer.new(alerts, serializer_options).serializable_hash[:data],
-          meta: {
-            current_page: alerts.current_page,
-            per_page: alerts.limit_value,
-            total_pages: alerts.total_pages,
-            total_count: alerts.total_count,
-            load_strategy: params[:load_strategy] || "includes"
+            data: AlertSerializer.new(alerts, serializer_options).serializable_hash[:data],
+            meta: {
+              current_page: alerts.current_page,
+              per_page: alerts.limit_value,
+              total_pages: alerts.total_pages,
+              total_count: alerts.total_count,
+              load_strategy: params[:load_strategy] || "includes"
+            }
           }
-        }
+        else
+          render json: {
+            errors: service.errors
+          }, status: :unprocessable_content
         end
       end
 
@@ -76,18 +80,32 @@ module Api
 
       # PATCH /api/v1/alerts/123/acknowledge - Acknowledge an alert
       def acknowledge
-        @alert.acknowledge!(current_user)
-        render json: {
-          data: AlertSerializer.new(@alert.reload).serializable_hash[:data]
-        }
+        service = AlertService::Acknowledge.call(alert: @alert, current_user: current_user)
+
+        if service.success?
+          render json: {
+            data: AlertSerializer.new(service.result.reload).serializable_hash[:data]
+          }
+        else
+          render json: {
+            errors: service.errors
+          }, status: :unprocessable_content
+        end
       end
 
       # PATCH /api/v1/alerts/123/resolve - Resolve an alert
       def resolve
-        @alert.resolve!(current_user)
-        render json: {
-          data: AlertSerializer.new(@alert.reload).serializable_hash[:data]
-        }
+        service = AlertService::Resolve.call(alert: @alert, current_user: current_user)
+
+        if service.success?
+          render json: {
+            data: AlertSerializer.new(service.result.reload).serializable_hash[:data]
+          }
+        else
+          render json: {
+            errors: service.errors
+          }, status: :unprocessable_content
+        end
       end
 
       private

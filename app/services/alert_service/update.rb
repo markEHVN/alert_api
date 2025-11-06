@@ -23,7 +23,6 @@ module AlertService
       if alert.update(params)
         true
       else
-        puts "Hello errors"
         add_errors(alert.errors)  # Add ActiveModel::Errors
         false
       end
