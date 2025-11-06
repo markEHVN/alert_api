@@ -12,42 +12,10 @@ module Api
       # GET /api/v1/alerts - Show all alerts for the current user
       def index
         # Get all alerts that belong to the logged-in user
-        puts params
-        include_parts = params[:include].to_s.split(",").map(&:strip)
-
-        # alerts = current_user.alerts
-        alerts = Alert.all
-        alerts = alerts.by_severity(params[:severity]) if params[:severity].present?
-        alerts = alerts.by_category(params[:category]) if params[:category].present?
-        alerts = alerts.unread if params[:unread] == "true"
-
-        # Handle includes vs preload for performance comparison
-        if include_parts.include?("user")
-          alerts = alerts.includes(:user)
-        end
-
-        if include_parts.include?("subscribers")
-          # Compare includes vs preload behavior
-          # Use preload to avoid N+1 but don't affect WHERE clauses
-          if params[:load_strategy] == "preload"
-            Rails.logger.info("[ALERT_API] Using preload(:alert_subscriptions, :user) strategy")
-            alerts = alerts.preload(:alert_subscriptions, :user)
-          else
-            Rails.logger.info("[ALERT_API] Using includes(:alert_subscriptions, :user) strategy")
-            alerts = alerts.includes(:alert_subscriptions, :user)
-          end
-        end
-
-        alerts = alerts
-        .recent
-        .page(params[:page])
-        .per(params[:per_page] || 20)
-
-        # Convert alerts to JSON and send back
-        serializer_options = {}
-        serializer_options[:include_subscribers] = true if include_parts.include?("subscribers")
-
-        render json: {
+        service = AlertService::Index.call(params: params)
+        if service.success?
+          alerts, serializer_options = service.result.values_at(:alerts, :serializer_options)
+          render json: {
           data: AlertSerializer.new(alerts, serializer_options).serializable_hash[:data],
           meta: {
             current_page: alerts.current_page,
@@ -57,6 +25,7 @@ module Api
             load_strategy: params[:load_strategy] || "includes"
           }
         }
+        end
       end
 
       # GET /api/v1/alerts/123 - Show one specific alert
@@ -85,15 +54,15 @@ module Api
 
       # PATCH /api/v1/alerts/123 - Update an existing alert
       def update
-        if @alert.update(alert_params)
-          # Success! Send back the updated alert
+        service = AlertService::Update.call(alert: @alert, params: alert_params)
+
+        if service.success?
           render json: {
-            data: AlertSerializer.new(@alert).serializable_hash[:data]
+            data: AlertSerializer.new(service.result).serializable_hash[:data]
           }
         else
-          # Failed! Send back the errors
           render json: {
-            errors: @alert.errors.full_messages
+            errors: service.errors
           }, status: :unprocessable_content
         end
       end

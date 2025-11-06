@@ -1,8 +1,5 @@
 # app/services/alert_service/create.rb
 module AlertService
-  class InvalidSeverityError < StandardError; end
-  class NotificationFailedError < StandardError; end
-
   class Create < ServiceBase
     def initialize(params:, current_user:)
       @params = params
@@ -13,13 +10,14 @@ module AlertService
       return self unless validate_inputs
       return self unless create_alert
 
-      send_notifications if high_severity
-      log_creation
-
       self  # Always return self (the service instance)
     end
 
     attr_reader :alert, :params, :current_user
+
+    def result
+      @alert
+    end
 
     private
 
