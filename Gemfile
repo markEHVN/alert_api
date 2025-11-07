@@ -54,3 +54,5 @@ group :development, :test do
 end
 
 gem "grape", "~> 2.4"
+
+gem "sidekiq", "~> 8.0"
