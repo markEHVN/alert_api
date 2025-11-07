@@ -52,3 +52,7 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 end
+
+gem "grape", "~> 2.4"
+
+gem "sidekiq", "~> 8.0"

@@ -1,3 +1,5 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -8,18 +10,22 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  namespace :api do
-    namespace :v1 do
-      resources :alerts do
-        member do
-          patch :acknowledge
-          patch :resolve
-        end
-        collection do
-          get :unread_count
-        end
-        resources :subscriptions, controller: "alert_subscriptions", except: [ :show, :update ]
-      end
-    end
-  end
+  # namespace :api do
+  #   namespace :v1 do
+  #     resources :alerts do
+  #       member do
+  #         patch :acknowledge
+  #         patch :resolve
+  #       end
+  #       collection do
+  #         get :unread_count
+  #       end
+  #       resources :subscriptions, controller: "alert_subscriptions", except: [ :show, :update ]
+  #     end
+  #   end
+  # end
+
+  mount Social => "/social"
+  mount EmploymentHero => "/"
+  mount Sidekiq::Web => "/sidekiq"
 end
