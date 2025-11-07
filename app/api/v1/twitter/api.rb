@@ -8,7 +8,7 @@ module V1
         resource :statuses do
           desc "Return a public timeline."
           get :public_timeline do
-            # Status.limit(20)
+            authorize_class!("Twitter", :index)
             "Hello, Twitter"
           end
 

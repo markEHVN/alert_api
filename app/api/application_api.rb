@@ -10,11 +10,6 @@ class ApplicationAPI < Grape::API
     error!(e.record.errors.full_messages, 422)
   end
 
-  # You can add more global error handlers here
-  # rescue_from AlertService::InvalidSeverityError do |e|
-  #   error!("Severity must be low, medium, high, or critical", 422)
-  # end
-
   # Define a module for shared helpers
   module SharedHelpers
     def current_user
@@ -56,6 +51,40 @@ class ApplicationAPI < Grape::API
       end
     rescue ActiveRecord::RecordNotFound
       error!("#{model_class.name} not found", 404)
+    end
+
+    # Policy authorization helper
+    def authorize!(record, action = nil)
+      # Determine the policy class based on the record
+      policy_class = "#{record.class.name}Policy".constantize
+      policy = policy_class.new(current_user, record)
+
+      # If no specific action is provided, infer it from the current HTTP method
+      action ||= case request.request_method.downcase
+      when "get" then params[:id] ? :show : :index
+      when "post" then :create
+      when "patch", "put" then :update
+      when "delete" then :destroy
+      end
+
+      # Check if the user is authorized for this action
+      unless policy.public_send("#{action}?")
+        error!("You are not authorized to perform this action", 403)
+      end
+    end
+
+    def authorize_class!(policy_name, action = nil)
+      policy_class = "#{policy_name}Policy".constantize
+      policy = policy_class.new(current_user, nil)
+
+      action ||= case request.request_method.downcase
+      when "get" then :index?
+      when "post" then :create?
+      end
+
+      unless policy.public_send("#{action}?")
+        error!("You are not authorized to perform this action", 403)
+      end
     end
   end
 

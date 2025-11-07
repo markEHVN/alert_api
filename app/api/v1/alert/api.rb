@@ -19,6 +19,7 @@ module V1
         end
         get do
           authenticate!
+          authorize_class!("Alert", :index)
 
           service = AlertService::Index.call(params: params, current_user: current_user)
           if service.success?
@@ -113,6 +114,7 @@ module V1
         delete ":id" do
           authenticate!
           find_alert!
+          authorize!(@alert, :destroy)
 
           @alert.destroy
           # Send back empty response with status 204 (No Content)
