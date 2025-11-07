@@ -17,11 +17,11 @@ RSpec.describe "/widgets", type: :request do
   # Widget. As you add validations to Widget, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    { name: "MyString" }
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    { name: nil }
   }
 
   # This should return the minimal set of values that should be in the headers
@@ -85,7 +85,7 @@ RSpec.describe "/widgets", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { name: "Updated Widget Name" }
       }
 
       it "updates the requested widget" do
@@ -93,7 +93,7 @@ RSpec.describe "/widgets", type: :request do
         patch widget_url(widget),
               params: { widget: new_attributes }, headers: valid_headers, as: :json
         widget.reload
-        skip("Add assertions for updated state")
+        expect(widget.name).to eq("Updated Widget Name")
       end
 
       it "renders a JSON response with the widget" do
