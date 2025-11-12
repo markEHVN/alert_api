@@ -1,9 +1,8 @@
-class EmploymentHero < Grape::API
-  version "v1", using: :path
+class EmploymentHero < ApplicationAPI
   format :json
-  prefix :api
 
-  mount V1::Alert::API
-  mount V1::AlertSubscription::API
-  mount V1::User::API
+  mount SignUpAPI
+  # mount V1::UserAPI
+  # mount V1::AlertAPI
+  # mount V1::AlertSubscriptionAPI
 end

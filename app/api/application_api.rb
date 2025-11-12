@@ -1,17 +1,15 @@
 class ApplicationAPI < Grape::API
-  format :json
-
-  # Global error handling - similar to rescue_from in ApplicationController
+  # Global error handling - similar
   rescue_from ActiveRecord::RecordNotFound do |e|
-    error!("Record not found", 404)
+    error!("Record not found !!", 404)
   end
 
   rescue_from ActiveRecord::RecordInvalid do |e|
     error!(e.record.errors.full_messages, 422)
   end
 
-  # Define a module for shared helpers
-  module SharedHelpers
+  # Include shared helpers directly so child classes inherit them automatically
+  helpers do
     def current_user
       @current_user ||= authenticate_user!
     end
@@ -44,6 +42,7 @@ class ApplicationAPI < Grape::API
 
     # Helper for finding records with proper error handling
     def find_record!(model_class, id, scope: nil)
+      puts scope
       if scope
         scope.find(id)
       else
@@ -87,7 +86,4 @@ class ApplicationAPI < Grape::API
       end
     end
   end
-
-  # Include the helpers in this base class
-  helpers SharedHelpers
 end
