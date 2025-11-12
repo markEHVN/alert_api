@@ -9,3 +9,6 @@ Request cycle: HTTP -> Web Server (Puma) -> Rack Middleware Stack -> Rails Route
 [x] Day 6: Controllers, Services & Boundaries
 [x] Day 7: Grape API
 [x] Day 8: Authorization and Policies
+[x] Day 9: Background Jobs
+[x] Day 10: Testing
+[ ] Day 11:
