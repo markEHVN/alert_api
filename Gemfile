@@ -56,3 +56,5 @@ end
 gem "grape", "~> 2.4"
 
 gem "sidekiq", "~> 8.0"
+
+gem "pundit", "~> 2.5"

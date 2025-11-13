@@ -5,6 +5,7 @@ class User < ApplicationRecord
   enum :role, { user: 0, admin: 1 }
 
   validates :email, presence: true, uniqueness: true
+  validates :password, presence: true
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :role, presence: true
@@ -15,9 +16,9 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}".strip
   end
 
-  def unread_alerts_count
-    alerts.unread.count
-  end
+  # def unread_alerts_count
+  #   alerts.unread.count
+  # end
 
   private
 

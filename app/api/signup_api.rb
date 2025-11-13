@@ -1,2 +1,0 @@
-class SignUpAPI < ApplicationAPI
-end
