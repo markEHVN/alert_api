@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_083514) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_12_132432) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,9 +37,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_083514) do
     t.json "metadata"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["category"], name: "index_alerts_on_category"
-    t.index ["severity", "created_at"], name: "index_alerts_on_severity_and_created_at"
-    t.index ["user_id", "status"], name: "index_alerts_on_user_id_and_status"
     t.index ["user_id"], name: "index_alerts_on_user_id"
   end
 
@@ -51,12 +48,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_083514) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "role", default: 0, null: false
-  end
-
-  create_table "widgets", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string "password"
   end
 
   add_foreign_key "alert_subscriptions", "alerts"

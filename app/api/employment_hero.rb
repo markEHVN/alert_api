@@ -1,9 +1,13 @@
-class EmploymentHero < Grape::API
-  version "v1", using: :path
-  format :json
-  prefix :api
+class EmploymentHero < ApplicationAPI
+  mount SignUpAPI => "/sign_up"
+  mount LoginAPI => "/login"
+  mount UserAPI
+  # mount V1::UserAPI
+  # mount V1::AlertAPI
+  # mount V1::AlertSubscriptionAPI
 
-  mount V1::Alert::API
-  mount V1::AlertSubscription::API
-  mount V1::User::API
+  # Catch-all route for unmatched paths (must be last)
+  route :any, "*path" do
+    error!("Handle /api/* route not found by Grape", 404)
+  end
 end
