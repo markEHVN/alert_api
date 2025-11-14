@@ -5,7 +5,10 @@ module UserService
     end
 
     def call
-      User.create!(@params)
+      user = User.create!(@params)
+      {
+        data: UserSerializer.new(user).serializable_hash[:data]
+      }
     rescue ActiveRecord::RecordInvalid => e
       { is_custom: true, messages: e.record.errors, file_error: "#{__FILE__}:#{__LINE__}" }
     end
@@ -39,6 +42,10 @@ module UserService
     def call
       user = User.find(@params[:id])
       user.destroy!
+      {
+        data: UserSerializer.new(user).serializable_hash[:data],
+        message: "User deleted successfully"
+      }
     rescue ActiveRecord::RecordNotFound => e
       { is_custom: true, messages: e, file_error: "#{__FILE__}:#{__LINE__}" }
     end
