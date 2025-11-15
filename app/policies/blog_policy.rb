@@ -20,4 +20,8 @@ class BlogPolicy
   def index?
     true
   end
+
+  def schedule?
+    true
+  end
 end
