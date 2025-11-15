@@ -1,6 +1,7 @@
 class User < ApplicationRecord
-  has_many :alerts, dependent: :destroy
-  has_many :alert_subscriptions, dependent: :destroy
+  has_many :blogs, dependent: :destroy
+  # has_many :alerts, dependent: :destroy
+  # has_many :alert_subscriptions, dependent: :destroy
 
   enum :role, { user: 0, admin: 1 }
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_12_132432) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_15_074206) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_12_132432) do
     t.index ["user_id"], name: "index_alerts_on_user_id"
   end
 
+  create_table "blogs", force: :cascade do |t|
+    t.string "title"
+    t.string "content"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0
+    t.index ["user_id"], name: "index_blogs_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -54,4 +64,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_12_132432) do
   add_foreign_key "alert_subscriptions", "alerts"
   add_foreign_key "alert_subscriptions", "users"
   add_foreign_key "alerts", "users"
+  add_foreign_key "blogs", "users"
 end

@@ -2,8 +2,7 @@ require "rails_helper"
 
 RSpec.describe User, type: :model do
   context "associations" do
-    it { should have_many(:alerts).dependent(:destroy) }
-    it { should have_many(:alert_subscriptions).dependent(:destroy) }
+    it { should have_many(:blog).dependent(:destroy) }
   end
 
   context "validations" do
@@ -13,7 +12,7 @@ RSpec.describe User, type: :model do
     it { should validate_presence_of(:first_name) }
     it { should validate_presence_of(:last_name) }
     it { should validate_presence_of(:role) }
-    it { should define_enum_for(:role).with_values(user: 0, admin: 1) }
+    it { should define_enum_for(:role).with_values([ :user, :admin ]) }
   end
 
   context "full_name method" do
