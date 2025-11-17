@@ -72,4 +72,16 @@ module UserService
       }
     end
   end
+
+  class Me
+    def initialize(user)
+      @user = user
+    end
+
+    def call
+      {
+        data: UserSerializer.new(@user).serializable_hash[:data]
+      }
+    end
+  end
 end

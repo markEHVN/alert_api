@@ -11,6 +11,12 @@ class UserAPI < ApplicationAPI
       instance.call
     end
 
+    desc "Retrieve the current user"
+    get "me" do
+      instance = UserService::Me.new(current_user)
+      instance.call
+    end
+
     desc "Update a user"
     params do
       requires :id, type: Integer, desc: "ID of the user"
